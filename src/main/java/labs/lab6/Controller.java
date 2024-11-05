@@ -29,16 +29,13 @@ public class Controller {
     ControllerState ready = new ControllerState() {
         @Override
         public void handlePressed(MouseEvent mouseEvent) {
+            System.out.println("click");
             prevX = mouseEvent.getX();
             prevY = mouseEvent.getY();
 
             double adjustedX = mouseEvent.getX() - iModel.getViewLeft();
             double adjustedY = mouseEvent.getY() - iModel.getViewTop();
 
-//            if (!model.contains(mouseEvent.getX(), mouseEvent.getY())) {
-//            if (!model.contains(adjustedX, adjustedY)) {
-//                model.addEntity(mouseEvent.getX(), mouseEvent.getY());
-//            }
             if (mouseEvent.isShiftDown()) { // should shift itself signal a state transition??
                 iModel.startPath(mouseEvent.getX(), mouseEvent.getY());
                 currentState = pathing;
@@ -48,14 +45,12 @@ public class Controller {
                     currentState = dragging;
                 }
                 else {
-                    model.addEntity(adjustedX, adjustedY);
-                    iModel.select(model.whichEntity(adjustedX, adjustedY));
-//                    currentState = dragging;
-                     currentState = creating;
+//                    model.addEntity(adjustedX, adjustedY);
+//                    iModel.select(model.whichEntity(adjustedX, adjustedY));
+                    currentState = creating;
                 }
             }
-//            iModel.setSelected(model.whichEntity(mouseEvent.getX(), mouseEvent.getY()));
-//            currentState = dragging;
+//            currentState = ready;
         }
 
         public void handleKeyPressed(KeyEvent event) {
@@ -82,6 +77,7 @@ public class Controller {
 
         @Override
         public void handleReleased(MouseEvent mouseEvent) {
+            System.out.println("dragging - release");
             double adjustedX = mouseEvent.getX() - iModel.getViewLeft();
             double adjustedY = mouseEvent.getY() - iModel.getViewTop();
             currentState = ready;
@@ -97,6 +93,7 @@ public class Controller {
 
         @Override
         public void handleReleased(MouseEvent mouseEvent) {
+            System.out.println("creating - release");
             double adjustedX = mouseEvent.getX() - iModel.getViewLeft();
             double adjustedY = mouseEvent.getY() - iModel.getViewTop();
 

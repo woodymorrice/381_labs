@@ -39,14 +39,20 @@ public class Controller {
 //            if (!model.contains(adjustedX, adjustedY)) {
 //                model.addEntity(mouseEvent.getX(), mouseEvent.getY());
 //            }
-            if (model.contains(adjustedX, adjustedY)) {
-                iModel.select(model.whichEntity(adjustedX, adjustedY));
-                currentState = dragging;
-            }
-            else {
-                model.addEntity(adjustedX, adjustedY);
-                iModel.select(model.whichEntity(adjustedX, adjustedY));
-                currentState = creating;
+            if (mouseEvent.isShiftDown()) { // should shift itself signal a state transition??
+                iModel.startPath(mouseEvent.getX(), mouseEvent.getY());
+                currentState = pathing;
+            } else {
+                if (model.contains(adjustedX, adjustedY)) {
+                    iModel.select(model.whichEntity(adjustedX, adjustedY));
+                    currentState = dragging;
+                }
+                else {
+                    model.addEntity(adjustedX, adjustedY);
+                    iModel.select(model.whichEntity(adjustedX, adjustedY));
+//                    currentState = dragging;
+                     currentState = creating;
+                }
             }
 //            iModel.setSelected(model.whichEntity(mouseEvent.getX(), mouseEvent.getY()));
 //            currentState = dragging;
@@ -96,6 +102,19 @@ public class Controller {
 
             model.addEntity(adjustedX, adjustedY);
             iModel.setSelected(model.whichEntity(adjustedX, adjustedY));
+            currentState = ready;
+        }
+    };
+
+    ControllerState pathing = new ControllerState() {
+        @Override
+        public void handleDragged(MouseEvent mouseEvent) {
+            iModel.continuePath(mouseEvent.getX(), mouseEvent.getY());
+        }
+
+        @Override
+        public void handleReleased(MouseEvent mouseEvent) {
+            iModel.endPath();
             currentState = ready;
         }
     };

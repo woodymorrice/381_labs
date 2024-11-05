@@ -39,7 +39,17 @@ public class View extends StackPane implements Subscriber {
 
     public void draw() {
         gc.clearRect(0, 0, width, height);
+        UserPath path = iModel.getPath();
+        copyPathToGC(path);
+
         gc.save();
+        if (path.isComplete()) {
+            gc.closePath();
+            gc.clip();
+        }
+        else {
+            gc.stroke();
+        }
         gc.translate(iModel.getViewLeft(), iModel.getViewTop());
         //typically this is something that owuld be stored in the interaction model
         // lazily hardcoded the world size in here (1000x1000)
@@ -61,5 +71,16 @@ public class View extends StackPane implements Subscriber {
 
     public void modelChanged() {
         draw();
+    }
+
+    private void copyPathToGC(UserPath path) {
+        gc.beginPath();
+        if (!path.getPoints().isEmpty()) {
+            PathPoint p = path.getPoints().getFirst();
+            gc.moveTo(p.x, p.y);
+            path.getPoints().forEach(point -> {
+                gc.lineTo(point.x, point.y);
+            });
+        }
     }
 }

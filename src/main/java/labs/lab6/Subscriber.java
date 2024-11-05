@@ -1,5 +1,5 @@
 package labs.lab6;
 
-interface Subscriber {
+public interface Subscriber {
     void modelChanged();
 }

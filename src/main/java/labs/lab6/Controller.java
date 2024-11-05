@@ -1,5 +1,6 @@
 package labs.lab6;
-
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 
 public class Controller {
@@ -8,36 +9,21 @@ public class Controller {
     private double prevX, prevY, dX, dY;
     private IModel iModel;
 
+    public Controller() { currentState = ready; }
 
-    public Controller() {
-        currentState = ready;
-    }
-
-    public void setModel(Model model) {
-        this.model = model;
-    }
-
-    public void setIModel(IModel iModel) {
-        this.iModel = iModel;
-    }
+    public void setModel(Model model) { this.model = model; }
+    public void setIModel(IModel iModel) { this.iModel = iModel; }
 
     public void handlePressed(MouseEvent mouseEvent) { currentState.handlePressed(mouseEvent); }
     public void handleReleased(MouseEvent mouseEvent) { currentState.handlePressed(mouseEvent); }
     public void handleDragged(MouseEvent mouseEvent) { currentState.handleDragged(mouseEvent); }
-
+    public void handleKeyPressed(KeyEvent keyEvent) { currentState.handleKeyPressed(keyEvent); }
 
     private abstract class ControllerState {
-        void handlePressed(MouseEvent mouseEvent) {
-
-        }
-
-        void handleReleased(MouseEvent mouseEvent) {
-
-        }
-
-        void handleDragged(MouseEvent mouseEvent) {
-
-        }
+        void handlePressed(MouseEvent mouseEvent) {}
+        void handleReleased(MouseEvent mouseEvent) {}
+        void handleDragged(MouseEvent mouseEvent) {}
+        void handleKeyPressed(KeyEvent keyEvent) {}
     }
 
     ControllerState ready = new ControllerState() {
@@ -46,12 +32,32 @@ public class Controller {
             prevX = mouseEvent.getX();
             prevY = mouseEvent.getY();
 
-            if (model.contains(mouseEvent.getX(), mouseEvent.getY())) {
-                iModel.setSelected(model.whichEntity(mouseEvent.getX(), mouseEvent.getY()));
+            double adjustedX = mouseEvent.getX() - iModel.getViewLeft();
+            double adjustedY = mouseEvent.getY() - iModel.getViewTop();
+
+//            if (!model.contains(mouseEvent.getX(), mouseEvent.getY())) {
+//            if (!model.contains(adjustedX, adjustedY)) {
+//                model.addEntity(mouseEvent.getX(), mouseEvent.getY());
+//            }
+            if (model.contains(adjustedX, adjustedY)) {
+                iModel.select(model.whichEntity(adjustedX, adjustedY));
                 currentState = dragging;
             }
             else {
+                model.addEntity(adjustedX, adjustedY);
+                iModel.select(model.whichEntity(adjustedX, adjustedY));
                 currentState = creating;
+            }
+//            iModel.setSelected(model.whichEntity(mouseEvent.getX(), mouseEvent.getY()));
+//            currentState = dragging;
+        }
+
+        public void handleKeyPressed(KeyEvent event) {
+            if (event.getCode() == KeyCode.LEFT) {
+                iModel.moveViewportLeft();
+            }
+            if (event.getCode() == KeyCode.RIGHT) {
+                iModel.moveViewportRight();
             }
         }
     };
@@ -70,7 +76,8 @@ public class Controller {
 
         @Override
         public void handleReleased(MouseEvent mouseEvent) {
-            iModel.unselect();
+            double adjustedX = mouseEvent.getX() - iModel.getViewLeft();
+            double adjustedY = mouseEvent.getY() - iModel.getViewTop();
             currentState = ready;
         }
     };
@@ -84,7 +91,11 @@ public class Controller {
 
         @Override
         public void handleReleased(MouseEvent mouseEvent) {
-            model.addEntity(mouseEvent.getX(), mouseEvent.getY());
+            double adjustedX = mouseEvent.getX() - iModel.getViewLeft();
+            double adjustedY = mouseEvent.getY() - iModel.getViewTop();
+
+            model.addEntity(adjustedX, adjustedY);
+            iModel.setSelected(model.whichEntity(adjustedX, adjustedY));
             currentState = ready;
         }
     };

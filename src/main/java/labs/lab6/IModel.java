@@ -6,12 +6,14 @@ public class IModel {
     Entity selected;
     private ArrayList<Subscriber> subs;
     private double viewLeft, viewTop;
+    private UserPath path;
 
     public IModel() {
         selected = null;
         subs = new ArrayList<>();
         viewLeft = 0;
         viewTop = 0;
+        path = new UserPath();
     }
 
     public Entity getSelected() {
@@ -68,5 +70,24 @@ public class IModel {
 
     public void setViewTop(double d) {
         viewTop = d;
+    }
+
+    public void startPath(double x, double y) {
+        path.start(x, y);
+        notifySubscribers();
+    }
+
+    public void continuePath(double x, double y) {
+        path.addPoint(x, y);
+        notifySubscribers();
+    }
+
+    public void endPath() {
+        path.complete();
+        notifySubscribers();
+    }
+
+    public UserPath getPath() {
+        return path;
     }
 }
